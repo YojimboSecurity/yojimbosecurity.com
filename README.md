@@ -1,3 +1,5 @@
+![logo](https://github.com/YojimboSecurity/yojimbosecurity.com/blob/main/static/logo3.png)
+
 # Yojimbo Security Blog
 
 This is my blog https://yojimbosecurity.com I also have https://yojimbosecurity.ninja

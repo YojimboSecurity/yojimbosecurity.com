@@ -11,3 +11,4 @@ I use [calendar versioning](https://calver.org/) for this project.
 ## 2021.11.24
 ### :sparkles: Add
 - Added Project
+- Add Logo to README
