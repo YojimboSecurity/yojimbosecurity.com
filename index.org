@@ -1,0 +1,13 @@
+#+TITLE: Yojimbo Security
+#+INCLUDE: "header.org"
+[[./static/logo3.png]]
+#+AUTHOR: David Johnson
+#+SETUPFILE: org-html-themes/org/theme-readtheorg-local.setup
+
+#+HTML_HEAD: <style> #content{max-width: 1800px;}</style>
+#+HTML_HEAD: <style> p{max-width: 800px;}</style>
+#+HTML_HEAD: <style> li{max-width: 800px;}</style
+
+* Wireless
+
+[[file:/aircrackWEPclassic.html][Aircrack WEP Classic]]
