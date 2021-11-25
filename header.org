@@ -1,0 +1,10 @@
+#+DESCRIPTION: Header
+#+OPTIONS: num:nil ^:{}
+
+#+HTML_HEAD: <style> #content{max-width: 1800px;}</style>
+#+HTML_HEAD: <style> p{max-width: 800px;}</style>
+#+HTML_HEAD: <style> li{max-width: 800px;}</style
+
+| [[file:index.org][Home]] | [[https://yojimbosecurity.ninja][Ninja]]
+
+[[../static/logo3.png]]

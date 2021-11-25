@@ -1,0 +1,146 @@
+#+TITLE: Aircrack-ng, WPA, and John the Ripper
+#+INCLUDE: "../header.org"
+#+AUTHOR: David Johnson
+#+SETUPFILE: "../org-html-themes/org/theme-readtheorg-local-1.setup"
+#+INDEX: Aircrack-ng, WPA, and John the Ripper
+#+INDEX: Wireless!Aircrack-ng, WPA, and John the Ripper
+
+Every craftsman knows that you need the right tool for the right job. In most cases you need many tools to get the job done. That's the case when comes to cracking WPA encrypted networks. 
+ai
+
+* Prerequisites
+For this tutorial and all tutorials Kali Linux is the required operating system. A wireless card capable of packet injection is imperative. I recommend the Alfa AWUS051NH because it is duel band allowing you to see more.
+
+* Capture 
+This tutorial will begin with the Aircrack-ng tool suite dealing capturing the WPA handshake. After this section is John the Ripper then briefly return to Aircrack-ng to finish cracking the handshake.
+
+** Step 1: Monitor
+Anytime you want to do something meaningful with wireless it needs to put it into monitor mode. For this tutorial we are using an external wireless card so before you plug it in lets see what you already have.
+
+#+BEGIN_EXAMPLEorg
+airmon-ng
+#+END_EXAMPLE
+
+
+Now plug in your wireless card and run airmon-ng again.
+
+#+BEGIN_EXAMPLE
+airmon-ng
+#+END_EXAMPLE
+
+Notice the interface for me its wlan1.
+
+To put it into monitor mode you need to know the interface of the card you want to monitor.
+
+#+BEGIN_EXAMPLE
+airmon-ng start <interface>
+#+END_EXAMPLE
+
+
+This will change your interface name. On some versions of Aircrack it will be mon0 for me it is wlan1mon. Run airmon-ng again to see what it is
+
+
+** Step 2: Packet Capture
+If you want to crack WPA you need something to crack. Here the main idea is to capture a WPA handshake. However we must first figure out our target.
+
+#+BEGIN_EXAMPLE
+airodump-ng <interface>
+#+END_EXAMPLE
+
+
+Here you can see there are two different APs (access point). Johnson and Shiro2.4 or C4:E9:84:59:06:09 and 80:A1:D7:EE:06:08. I will be attacking Shiro2.4 for this tutorial. There are a few things you need to know when attacking a wireless network. You will need to know the channel, ESSID, and BSSID. As you can see all that is listed here. For Shiro2.4 the channel is 1, BSSID C4:E9:84:59:06:09, and of corse the ESSID is Shiro2.4.
+
+Next we want to filter out everything but our target and save the packet capture.
+#+BEGIN_EXAMPLE
+airodump-ng -c <channel> --bssid <APs BSSID> -w <filename> <interface>
+#+END_EXAMPLE
+
+
+** Step 3: De-authenticate
+Leave the packet capture running and open up a new terminal. In this step we are going to de-authenticate a client that is connected to the AP we are attacking. Take a look at the picture below. It is a snapshot of the packet capture I only have one client connected to this network.
+
+#+BEGIN_EXAMPLE
+aireplay-ng -0 <number of packets> -a <AP BSSID> -c < BSSID> -h <your MAC> <interface>
+#+END_EXAMPLE
+
+Notice the highlight. That indicates that a WPA handshake has been captured. That is just what we want. Go ahead and kill the packet capture its time to move on to John the Ripper.
+
+* Carck  
+
+John the Ripper is a great in unison with Aircrack-ng. We will mainly be using Johns ability to use rules to generate passwords. Those passwords are then piped into Aircrack-ng to crack th WPA encrypted handshake.
+
+** Step 1: Edit john.conf
+What John the Ripper is going to do for us here is to take a word list and run a set of rules on it. For example we have a word list with the single word 'password'. John will take that word and do things like append a number, starting with 0 and ending with 9, to the end of the word. Example 'password0', 'password1', 'password2'...'password8','password9'. What we are going to do is edit the john.conf file found in /etc/john to allow us to do that up to four numbers. For example, 'passsword0000' through 'password9999'.
+
+I'm doing this because I have cracked a WPA handshake with a word list of four words and this new rules list. The password was the companies name and a year appended to the end. Example, 'password2014'.
+
+As I have stated go to /etc/john and open the john.conf file.
+
+vim john.conf
+
+john.conf0
+
+Search for [List.Rules:Wordlist] and at the bottom of that section add the following.
+
+$[0-9]$[0-9]
+$[0-9]$[0-9]$[0-9]
+$[0-9]$[0-9]$[0-9]$[0-9]
+john.conf1
+
+** Step 2: Create A Word List
+I am going to create a word list with one word in it. However you should build a word list that consists of relevant words. If your attacking your neighbors wifi because your cheap. You might have in your word list his kids names, their birthday, the pets name, their favorite sports team, and such.
+
+I will build a word list by making a file that I am going to call wrd.lst and in it i only have the word password. I will then run John and pass the out put into another file called wrd.lst.2.
+
+#+BEGIN_EXAMPLE
+john --wordlist=<path to wordlist> --rules --stdout >> <file name>
+#+END_EXAMPLE
+
+If you open the newly created word list you will see that Johns rules does a lot more that append digits the the end of a word.
+
+With this new word list created its time to get back to Aircrack-ng.
+
+The reason I used John was to create a word list with rules. One could just pipe the output of John right into Aircrack-ng with the following.
+#+BEGIN_EXAMPLE
+john --wordlist=<path to wordlist> --rules --stdout | aircrack-ng
+#+END_EXAMPLE
+
+I however will use Aircrack-ng tool suite to pre-hash the new word list to speed up the process. This will be very useful when working with a large word list.
+
+** Step 3: Create A Database
+We are going to create a database for Aircrack-ng to work with. To do this lets first create a file with the APs ESSID.
+
+#+BEGIN_EXAMPLE
+echo <essid> > essid.txt
+
+#+END_EXAMPLE
+
+With this done we can begin creating the database.
+#+BEGIN_EXAMPLE
+airolib-ng <database> --import essid <file name>
+#+END_EXAMPLE
+
+Next import the password list.
+
+#+BEGIN_EXAMPLE
+airolib-ng <database> --import password <path to wordlist>
+#+END_EXAMPLE
+
+With that done we next batch the database. Basically this prehashes the ESSID and each word in the database. This creates a dictionary list with the hashed password and the non-hashed password.
+
+#+BEGIN_EXAMPLE
+airolib-gn --batch>
+
+#+END_EXAMPLE
+
+** Step 4: Start Cracking
+Now this is the moment we have been working up to. Its now time to try to crack the password. If we made a good word list we should be able to crack the password.
+#+BEGIN_EXAMPLE
+aircrack-ng -r <database> <captured packet file>
+#+END_EXAMPLE
+
+
+Success! I was able to crack the password how about you? If not don't feel to bad I was always in control of the victim AP. If you did not have success work on your word list.
+
+How To Protect Against This Attack
+The WPA is the best way to protect a wireless network. The only weakness to WPA is a weak password. I recommend a long pass phrase with special characters and numbers. Another great resource is GRC's Perfect Passwords, however those are long and complex and not easily remembered. A pass phrase such as 'pr3ttyp1nk3l3ph@nts' (pretty pink elephants) would work great. Its easy to remember and you are using special characters and numbers. All you are doing is replacing 'e' with '3', 'i' with '1', and 'a' with '@'. You can even through in lower and upper case letters for an even stronger password.

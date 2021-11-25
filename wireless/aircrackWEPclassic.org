@@ -1,0 +1,112 @@
+#+TITLE: Classic WEP 
+#+INCLUDE: "../header.org"
+#+AUTHOR: David Johnson
+#+SETUPFILE: "../org-html-themes/org/theme-readtheorg-local-1.setup"
+#+INDEX: Classic WEP
+#+INDEX: Wireless!Classic WEP
+
+WEP, Wired Equivalent Privacy, has been broken for a while now and should never be used. This being said there are still people out there using WEP. This tutorial will cover the basic steps used to attack WEP.
+
+* Step 1: Monitor
+To be able to conduct these attacks the wireless card being used needs to be in monitor mode.
+
+This is easily done with airmon-ng one on the many tools included in the aircrack-ng tool suite.
+This will list your wireless devices and their drivers. Useful when you have several wireless devices.
+
+Put interface into moniter mode
+#+BEGIN_EXAMPLE
+airmon-ng start <wireless interface>
+#+END_EXAMPLE
+
+This will put your wireless device into monitor mode. Note that <wireless interface> will be changed to the wireless interface you want to listen on. In Kali Linux that tends to be wlan0, wlan1, wlan2, and so on.
+
+#+BEGIN_EXAMPLE
+airmon-ng start <wireless interface> <channel>
+#+END_EXAMPLE
+
+In some areas the wireless spectrum is very noisy and filtering out channels can be very helpful. To do this just add the channel that you want to listen on at the end.
+
+* Step 2: Packet Capture
+Once the wireless card in put into monitor mode one can begin to capture packets.
+
+Note: when one puts a wireless device into monitor mode the interface name often changes. In Kali Linux wlan0 often becomes wlan1mon or mon0.
+
+#+BEGIN_EXAMPLE
+airodump-ng <wireless interface>
+#+END_EXAMPLE
+
+This will let you observe and gather important information on an AP, Access Point.
+
+Information is important to this attack includes the AP's MAC address(BSSID),AP's channel, and connected clients(station) MAC address(BSSID).
+
+#+BEGIN_EXAMPLE
+airodump-ng -c <channel> --bssid <AP MAC> -w <file name> <wireless interface>
+#+END_EXAMPLE
+
+Using the gathered information you can select what channel to listen on -c, specify which AP to monitor --bssid, and save the packet dump to a file -w.
+
+* Step 3: Fake Auth
+In this next step we will fake authenticate with the AP we intend to attack.
+
+#+BEGIN_EXAMPLE
+aireplay-ng -1 60 -e <AP ESSID> -a <AP BSSID> -h <wireless MAC> <wireless interface>
+#+END_EXAMPLE
+
+The -1 60 tells it is going to conduct a fake authentication attack and to do so every 60 seconds. If you don't know by now you need to know, ESSID is the AP's name and the BSSID is the MAC address.
+
+To find your wireless cards MAC address one can use ifconfig or macchanger. I will be using macchanger to introduce a tool to be used later in the wireless hacking.
+
+#+BEGIN_EXAMPLE
+macchanger <wireless interface>
+#+END_EXAMPLE
+
+This gives you the current and permanent MAC of the specified wireless interface.
+
+* Step 4: Classic Attack
+Up till now what you have learned is the basics to attacking WEP. It will be used in every WEP attack. This is where the classic attack starts.
+
+In the classic attack the goal is to capture an ARP packet from a client to the AP. It is then replayed until enough IVS packets have been captured.
+
+#+BEGIN_EXAMPLE
+aireplay-ng -3 -b <AP BSSID> -h <wireless BSSID> <wireless interface>
+#+END_EXAMPLE
+
+The above looks for an ARP packet sent from a client to the AP specified by the -b flag.
+
+
+* Setp 5: De-Auth
+The idea here is to send a de-authenticate packet to a targeted client. For this attack to work a client, other than your fake authenticated client, must be connected and active. By active I mean sending data packets. If the client is connected but not actively sending data packets it tends to be much more time consuming.
+
+The reason we want to de-authenticate a client is to force it to re-authenticate. This means sending an ARP packet.
+
+#+BEGIN_EXAMPLE
+aireplay-ng -0 1 -a <AP BSSID> -c <client BSSID> <wireless interface>
+#+END_EXAMPLE
+
+Here -0 1 is telling aireplay to send one de-authenticate packet. You can increase the number of packets sent, causing a denial of service to that client.
+
+
+* Step 6: Crack the Key
+All that work was for this moment. Now we must try to crack the WEP key.
+
+#+BEGIN_EXAMPLE
+aircrack-ng -0 <capture file>
+#+END_EXAMPLE
+
+Here we are actually cracking the key with aircrack-ng. The -0 just gives it a bit of color. Then just put the name of the capture file. This is the file that airodump created with the -w flag. It will have the .cap file extension.
+
+* Summary
+Nothing can happen with out your wireless card being in monitor mode.
+
+You can't crack the key unless you capture it.
+
+Listen for the ARP packet.
+
+De-authenticate to force an ARP packet
+
+Crack the key!
+
+Some things one can do to harden a WEP
+Use MAC filtering
+
+This will not stop an attacker it will slow then down a bit. I gave a hint on how to do change your MAC. The best thing to do is to stop use WPA/WPA2 encryption
