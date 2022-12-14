@@ -1,6 +1,0 @@
-#+TITLE: Index
-#+INCLUDE: "header.org"
-#+AUTHOR: David Johnson
-
-
-#+INCLUDE: "theindex.inc"

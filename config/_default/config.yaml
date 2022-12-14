@@ -1,0 +1,12 @@
+title: Yojimbo Security
+baseURL: https://yojimbosecurity.com/
+languageCode: en-us
+theme: ananke
+resourceDir: resources
+
+DefaultContentLanguage: en
+SectionPagesMenu: main
+Paginate: 5 # this is set low for demonstrating with dummy content. Set to a higher number
+googleAnalytics:  # TODO
+enableRobotsTXT: true
+

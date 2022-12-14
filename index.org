@@ -1,6 +1,0 @@
-#+TITLE: Yojimbo Security
-#+INCLUDE: "header.org"
-#+AUTHOR: David Johnson
-#+SETUPFILE: org-html-themes/org/theme-readtheorg-local-0.setup
-
-#+INCLUDE: "theindex.inc"

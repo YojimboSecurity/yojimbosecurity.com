@@ -1,0 +1,17 @@
+text_color: 
+# commentoEnable: true
+author: David Johnson
+favicon: /images/icon_108.png
+site_logo: /images/yojimboHorizontalNoBG.png
+description: Information Security Research and Development
+# choose a background color from any on this page: https://tachyons.io/docs/themes/skins/ and preface it with bg-
+background_color_class: bg-black
+# body_classes: avenir bg-dark-gray
+recent_posts_number: 3
+ananke_socials:
+  - name: linkedin
+    url: https://www.linkedin.com/in/david-johnson-614193ab
+  - name: github
+    url: https://github.com/YojimboSecurity 
+  - name: youtube
+    url: https://www.youtube.com/@yojimbosecurityninja
