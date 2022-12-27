@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Yojimbo Security</title>
+    <link>https://yojimbosecurity.com/</link>
+    <description>Recent content on Yojimbo Security</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 06 Jan 2022 20:33:58 -0500</lastBuildDate><atom:link href="https://yojimbosecurity.com/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Baby</title>
+      <link>https://yojimbosecurity.com/posts/htb/reverse-engineering/baby/</link>
+      <pubDate>Thu, 06 Jan 2022 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/htb/reverse-engineering/baby/</guid>
+      <description>Hack the Box Reverse Engineering: Baby-re As I learn about reverse engineering and hacking, I find myself repeating certain steps. When working on the network, I start with Nmap and when reverse engineering I start with file.
+file baby | tr &amp;#34;,&amp;#34; &amp;#34;\n&amp;#34; The next thing I did was execute the file.
+$ ./baby Insert key: This is interesting and something to keep in mind as I look through the code.</description>
+    </item>
+    
+    <item>
+      <title>You Can&#39;t C Me</title>
+      <link>https://yojimbosecurity.com/posts/htb/reverse-engineering/you_cant_c_me/</link>
+      <pubDate>Thu, 06 Jan 2022 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/htb/reverse-engineering/you_cant_c_me/</guid>
+      <description>Hack the Box Reverse Engineering: You Can’t C Me I start by looking at the file.
+file auth | tr &amp;#34;,&amp;#34; &amp;#34;\n&amp;#34; I then opened it up in ghidra and looked at the functions. The functions where obfuscated however, I was able to find what appears to be the main function. Note that I did rename the function to main and I also rename a variable to userIn for reasons to be discussed later.</description>
+    </item>
+    
+    <item>
+      <title>Attacking WPA/WPA2 Using PMKID</title>
+      <link>https://yojimbosecurity.com/posts/wireless/attacking-wpa-wpa2-using-pmkid/</link>
+      <pubDate>Tue, 23 Apr 2019 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/wireless/attacking-wpa-wpa2-using-pmkid/</guid>
+      <description>Having heard about the new attack on WPA/WPA2 using PMKID I am attempting to reproduce.
+I am using a raspberrypy with an Alfa wireless card. The AP is a tplink N600. Also installed on system76 Ubuntu18 The first thing I did was clone the repos.
+Tools Hcxdumptool git clone https://github.com/ZerBea/hcxdumptool.git cd hcxdumptool/ make sudo make install Hcxtools git clone https://github.com/ZerBea/hcxtools.git cd hcxtools/ sudo apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev libpcap-dev make sudo make install Hashcat git clone https://github.</description>
+    </item>
+    
+    <item>
+      <title>Fuzzbunch</title>
+      <link>https://yojimbosecurity.com/posts/windows/fuzzbunch/</link>
+      <pubDate>Tue, 12 Mar 2019 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/windows/fuzzbunch/</guid>
+      <description>Fuzzbunch is a framework like Metasploit however it was written for Windows XP and who wants to use that. This tutorial will cover how to get it up and running on a Debian based distro.
+Prerequisites Debian based distro
+Wine
+fuzzbunch-debian
+Step 1: The first thing we need to do is install Wine and clone fuzzbunch-debian.
+As always we begin with an update.
+apt update Install Wine and other Wine tools.</description>
+    </item>
+    
+    <item>
+      <title>Securing SSH</title>
+      <link>https://yojimbosecurity.com/posts/linux/ssh/securing-ssh/</link>
+      <pubDate>Wed, 23 Jan 2019 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/linux/ssh/securing-ssh/</guid>
+      <description>In this tutorial we will secure SSH by disabling root logon and logon with a password.
+Prerequisites I will be using two Ubuntu vagrant machines however this should work on most systems with SSH. Keep in mind the paths and files may differ across different systems.
+Step 1: Create RSA Keys The first step is to generate the RSA key pair.
+ssh-keygen -t rsa You will be asked where to keep the keys and for a passphrase.</description>
+    </item>
+    
+    <item>
+      <title>Securing Sudo</title>
+      <link>https://yojimbosecurity.com/posts/linux/sudo/securing-sudo/</link>
+      <pubDate>Wed, 28 Nov 2018 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/linux/sudo/securing-sudo/</guid>
+      <description>In this tutorial we will secure Sudo by enabling logging. Giving us the ability to replay a users session.
+Prerequisites I will be using Ubuntu however this should work on most systems with sudo. Keep in mind the paths and files may differ across different systems.
+Enable SUDO Logging There are several ways to log sudo activity but the coolest way is with sudoreplay.
+To enable sudo logging we will be editing the sudoers file.</description>
+    </item>
+    
+    <item>
+      <title>Brute Force SSH</title>
+      <link>https://yojimbosecurity.com/posts/linux/ssh/brute-force-ssh/</link>
+      <pubDate>Mon, 16 Apr 2018 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/linux/ssh/brute-force-ssh/</guid>
+      <description>Introduction This tutorial will teach you how to write a Python script using Paramiko to bruit force SSH. I will start by showing you how to make a connection, send input and receive output, and finish with brute forcing. In this tutorial I will be attacking Metasploitable and I recommend you do as well. I have a handy tutorial on how to set up Metasploitable if you need any help.</description>
+    </item>
+    
+    <item>
+      <title>Sudo Logging and Monitoring</title>
+      <link>https://yojimbosecurity.com/posts/linux/sudo/sudo-logging-and-monitering/</link>
+      <pubDate>Wed, 26 Jul 2017 20:33:58 -0500</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/linux/sudo/sudo-logging-and-monitering/</guid>
+      <description>For Debian based systems
+Basic Logging methods Log what sudo did (/var/log/auth.log)
+Debugging (/var/log/sudo_debug)
+Full session capture (/var/log/sudo-io)
+With these three you can customize the level of logging needed for your environment.
+VISUDO You should always use visudo to edit the /etc/sudoers file. It will make sure your changes are correct. It is possible to lock your self out of the system. Visudo helps but if your changes are syntactically and logically correct you can still get locked out.</description>
+    </item>
+    
+    <item>
+      <title>DCSync</title>
+      <link>https://yojimbosecurity.com/posts/windows/dcsync/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/windows/dcsync/</guid>
+      <description>DCSync is a powerful tool in the hands of a red teamer and a nightmare for Blue teamers. For the blue teamer all is not lost. This type of attack may not be feasible to stop but it can be detected.
+Abstract Here I will show how you can quickly and easily get detections in place DCSync. I begging with a brief overview of DCSync and a quick guide on how to use it to get credentials.</description>
+    </item>
+    
+    <item>
+      <title>Eternalblue Doublepulsar</title>
+      <link>https://yojimbosecurity.com/posts/windows/eternal-blue/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/windows/eternal-blue/</guid>
+      <description>This tutorial will cover how to add Eternalblue-Doublepulsar to Metasploit framework on any Debian based distro. As well as run the Fuzzbunch framework through wine.
+Prerequisites Debian based distro
+Metasploit
+Wine
+Eternalbule-doublepulsar
+Step 1: Will the target fall victim? We will want to check to see if the target victim is vulnerable. To do this we will need to add a module to Metasploit. Specifically we want ms~17010~ which we can find on exploit db.</description>
+    </item>
+    
+    <item>
+      <title>Golden Ticket with Impacket</title>
+      <link>https://yojimbosecurity.com/posts/windows/golden-ticket/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/windows/golden-ticket/</guid>
+      <description>Golden Ticket This document covers how to create a Golden Ticket. An Active Directory Domain server is required for this to work. Connected clients are useful but not required.
+Creating the Ticket To create a Golden Ticket the NT Hash for KRBTGT will need to be aquired as well as the Domain SID. All this can easily be done with Impacket.
+KRBTGT NT Hash Lets start off by getting the KRBTGT hash.</description>
+    </item>
+    
+    <item>
+      <title>Pass The Hash</title>
+      <link>https://yojimbosecurity.com/posts/windows/pass-the-hash/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://yojimbosecurity.com/posts/windows/pass-the-hash/</guid>
+      <description>Detecting Pass-The-Ticket and Pass-The-Hash Attack Using Simple WMI Commands Reading this I wanted to follow along but there was some things left out. I like reproducability and wanted to reproduce the resaults.
+This artical starts out realy well. The first few paragraphs go over the issue I am having. PTH is really hard to detect how can we do a better job to filter out the false positives? This guy seams to have figured something out so I read on.</description>
+    </item>
+    
+  </channel>
+</rss>
