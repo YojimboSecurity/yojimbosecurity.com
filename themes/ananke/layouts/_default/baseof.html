@@ -50,4 +50,5 @@
     </main>
     {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
   </body>
+  {{ template "_internal/google_analytics_async.html" . }}
 </html>
